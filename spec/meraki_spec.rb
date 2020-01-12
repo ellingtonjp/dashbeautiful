@@ -1,6 +1,6 @@
 module Meraki
   RSpec.describe Meraki do
-    it "should have version number" do
+    it 'has version number' do
       expect(Meraki::VERSION).not_to be nil
     end
   end
