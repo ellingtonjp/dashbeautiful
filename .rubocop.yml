@@ -25,5 +25,9 @@ Metrics/BlockLength:
   Exclude:
     - 'meraki.gemspec'
     - '**/*_spec.rb'
+Metrics/ModuleLength:
+  Enabled: true
+  Exclude:
+    - '**/*_spec.rb'
 Style/FrozenStringLiteralComment:
   Enabled: false
