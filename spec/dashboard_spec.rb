@@ -20,10 +20,10 @@ module Meraki
         ]
         @network_org1_ids = @networks_org1.map { |network| network[:id] }
         @network_org1_names = @networks_org1.map { |network| network[:name] }
-        @http1 = instance_double('Meraki::HTTP',
+        @api1 = instance_double('Meraki::API',
                                  organizations: @organizations_key1,
                                  networks: @networks_org1,
-                                 api_key: @key1)
+                                 key: @key1)
 
         # test data associated with api key 2
         @key2 = 'testapikey'
@@ -35,21 +35,21 @@ module Meraki
         @organization_key2_ids = @organizations_key2.map { |org| org[:id] }
         @organization_key2_names = @organizations_key2.map { |org| org[:name] }
         @organization_key2_urls = @organizations_key2.map { |org| org[:url] }
-        @http2 = instance_double('Meraki::HTTP',
+        @api2 = instance_double('Meraki::API',
                                  organizations: @organizations_key2,
                                  networks: @networks_org1,
-                                 api_key: @key2)
+                                 key: @key2)
 
       end
 
       describe Organization do
         before :each do
           @org_data = @organizations_key1.first
-          @org = Organization.new @http1, **@org_data
+          @org = Organization.new @api1, **@org_data
         end
 
         it 'returns correct api key' do
-          expect(@org.api_key).to eq @http1.api_key
+          expect(@org.api_key).to eq @api1.key
         end
 
         it 'returns correct id' do
@@ -74,11 +74,11 @@ module Meraki
           end
 
           it 'returns empty array on org with no networks' do
-            http = instance_double('Meraki::HTTP',
-                                    organizations: @organizations_key1,
-                                    networks: [],
-                                    api_key: @key1)
-            org = Organization.new http, **@organizations_key1.first
+            api = instance_double('Meraki::API',
+                                  organizations: @organizations_key1,
+                                  networks: [],
+                                  key: @key1)
+            org = Organization.new api, **@organizations_key1.first
             expect(org.networks).to be_empty
           end
         end
@@ -86,48 +86,48 @@ module Meraki
         describe 'class methods' do
           describe 'init' do
             it 'initializes with organization id' do
-              org = Organization.init(organization: @organization_key1_ids[0], api_key: @key1, http: @http1)
+              org = Organization.init(organization: @organization_key1_ids[0], api_key: @key1, api: @api1)
               expect(org.id).to eq @organization_key1_ids[0]
             end
 
             it 'initializes with organization name' do
-              org = Organization.init(organization: @organization_key1_names[0], api_key: @key1, http: @http1)
+              org = Organization.init(organization: @organization_key1_names[0], api_key: @key1, api: @api1)
               expect(org.name).to eq @organization_key1_names[0]
             end
 
             it 'initializes with organization url' do
-              org = Organization.init(organization: @organization_key1_urls[0], api_key: @key1, http: @http1)
+              org = Organization.init(organization: @organization_key1_urls[0], api_key: @key1, api: @api1)
               expect(org.url).to eq @organization_key1_urls[0]
             end
 
             it 'raises ArgumentError if org id not accessible by user' do
-              expect { Organization.init(organization: 99_999, api_key: @key1, http: @http1) }.to raise_error ArgumentError
+              expect { Organization.init(organization: 99_999, api_key: @key1, api: @api1) }.to raise_error ArgumentError
             end
 
             it 'raises ArgumentError if name not accessible by user' do
-              expect { Organization.init(organization: 'non accesible org', api_key: @key1, http: @http1) }.to raise_error ArgumentError
+              expect { Organization.init(organization: 'non accesible org', api_key: @key1, api: @api1) }.to raise_error ArgumentError
             end
 
             it 'raises ArgumentError if url not accessible by user' do
-              expect { Organization.init(organization: 'non accesible url', api_key: @key1, http: @http1) }.to raise_error ArgumentError
+              expect { Organization.init(organization: 'non accesible url', api_key: @key1, api: @api1) }.to raise_error ArgumentError
             end
           end
 
           describe 'all' do
             it 'returns correct number of orgs' do
-              expect(Organization.all(@key1, http: @http1).length).to eq(@organizations_key1.length)
+              expect(Organization.all(@key1, api: @api1).length).to eq(@organizations_key1.length)
             end
 
             it 'returns organizations with correct ids with orgs on api key' do
-              expect(Organization.all(@key1, http: @http1).map(&:id)).to eq(@organization_key1_ids)
+              expect(Organization.all(@key1, api: @api1).map(&:id)).to eq(@organization_key1_ids)
             end
 
             it 'returns organizations with correct names with orgs on api key' do
-              expect(Organization.all(@key1, http: @http1).map(&:name)).to eq(@organization_key1_names)
+              expect(Organization.all(@key1, api: @api1).map(&:name)).to eq(@organization_key1_names)
             end
 
             it 'returns organizations with correct urls with orgs on api key' do
-              expect(Organization.all(@key1, http: @http1).map(&:url)).to eq(@organization_key1_urls)
+              expect(Organization.all(@key1, api: @api1).map(&:url)).to eq(@organization_key1_urls)
             end
 
             it 'raises argument error if no key passed' do
@@ -137,17 +137,17 @@ module Meraki
 
           describe 'find_by' do
             it 'returns organization by name' do
-              org = Organization.find_by(:name, 'organization key1 one', @key1, http: @http1)
+              org = Organization.find_by(:name, 'organization key1 one', @key1, api: @api1)
               expect(org.name).to eq 'organization key1 one'
             end
 
             it 'returns organization by id' do
-              org = Organization.find_by(:id, 1, @key1, http: @http1)
+              org = Organization.find_by(:id, 1, @key1, api: @api1)
               expect(org.id).to eq 1
             end
 
             it 'returns nil if cannot find organization' do
-              org = Organization.find_by(:id, 9999, @key1, http: @http1)
+              org = Organization.find_by(:id, 9999, @key1, api: @api1)
               expect(org).to be_nil
             end
           end
@@ -158,12 +158,12 @@ module Meraki
       describe Network do
         before :each do
           @org_data = @organizations_key1.first
-          @org = Organization.new @http1, **@org_data
+          @org = Organization.new @api1, **@org_data
           @network = Network.new @org, **@networks_org1.first
         end
 
         it 'returns correct api key' do
-          expect(@network.api_key).to eq @http1.api_key
+          expect(@network.api_key).to eq @api1.key
         end
 
         describe 'class methods' do
@@ -222,7 +222,7 @@ module Meraki
 
         it 'initializes' do
           puts @organizations_key.inspect
-          org = Organization.new @http1, **@organizations_key1.first
+          org = Organization.new @api1, **@organizations_key1.first
           network = Network.new(org, id: 11, name: 'network')
           expect(network.name).to eq 'network'
         end

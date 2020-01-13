@@ -2,11 +2,11 @@ require 'httparty'
 
 module Meraki
   # description TODO
-  class HTTP # TODO: rename to API
-    attr_reader :api_key
+  class API
+    attr_reader :key
 
-    def initialize(api_key, requestor: HTTParty)
-      @api_key = api_key
+    def initialize(key, requestor: HTTParty)
+      @key = key
       @base_url = 'https://api.meraki.com/api/v0'
       @headers = {
         'X-Cisco-Meraki-API-Key' => key
