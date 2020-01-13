@@ -5,44 +5,44 @@ module Meraki
   module Dashboard
     # description TODO
     class Organization
-      attr_reader :http, :name, :id, :url
+      attr_reader :api, :name, :id, :url
 
       ATTRIBUTES = %i[id name url].freeze
 
-      def self.all(api_key, http: HTTP.new(api_key))
+      def self.all(api_key, api: API.new(api_key))
         raise ArgumentError, 'api_key is nil. Either initialize Organization or pass a key' if api_key.nil?
 
-        http.organizations.map { |org| Organization.new(http, **org) }
+        api.organizations.map { |org| Organization.new(api, **org) }
       end
 
-      def self.find_by(attribute, value, api_key, http: HTTP.new(api_key))
-        all(api_key, http: http).each do |org|
+      def self.find_by(attribute, value, api_key, api: API.new(api_key))
+        all(api_key, api: api).each do |org|
           return org if org.send(attribute) == value
         end
         nil
       end
 
-      def self.init(organization:, api_key:, http: HTTP.new(api_key))
+      def self.init(organization:, api_key:, api: API.new(api_key))
         ATTRIBUTES.each do |attribute|
-          org = find_by(attribute, organization, api_key, http: http)
+          org = find_by(attribute, organization, api_key, api: api)
           return @organization = org unless org.nil?
         end
         raise ArgumentError, "Could not find organization: #{organization}"
       end
 
-      def initialize(http, **attributes)
-        @http = http
+      def initialize(api, **attributes)
+        @api = api
         @id = attributes[:id]
         @name = attributes[:name]
         @url = attributes[:url]
       end
 
       def api_key
-        http.api_key
+        api.key
       end
 
       def networks
-        http.networks(id).map { |network| NetworkFactory.create(self, **network) }
+        api.networks(id).map { |network| NetworkFactory.create(self, **network) }
       end
     end
 
@@ -91,11 +91,11 @@ module Meraki
       end
 
       def api_key
-        organization.http.api_key
+        organization.api.key
       end
 
       def devices
-        @http.devices(id).map { |device| DeviceFactory.create(@http, self, device) }
+        @api.devices(id).map { |device| DeviceFactory.create(@api, self, device) }
       end
     end
 
@@ -121,8 +121,8 @@ module Meraki
     # class Device
     #   attr_reader :organization, :network, :id, :name, :serial, :mac, :model, :tags, :firmware, :lanip, :mtunnel
 
-    #   def initialize(http, network, **attributes)
-    #     @http = http
+    #   def initialize(api, network, **attributes)
+    #     @api = api
     #     @organization = organization
     #     @network = network
     #     @id = attributes[:id]

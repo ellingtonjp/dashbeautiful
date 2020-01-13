@@ -1,5 +1,5 @@
 require 'meraki/dashboard'
-require 'meraki/http'
+require 'meraki/api'
 require 'meraki/version'
 
 module Meraki
