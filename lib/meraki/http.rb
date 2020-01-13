@@ -2,7 +2,7 @@ require 'httparty'
 
 module Meraki
   # description TODO
-  class HTTP
+  class HTTP # TODO: rename to API
     attr_reader :api_key
 
     def initialize(api_key, requestor: HTTParty)

@@ -23,8 +23,6 @@ module Meraki
       end
 
       def self.init(organization:, api_key:, http: HTTP.new(api_key))
-        # Network.init(self)
-
         ATTRIBUTES.each do |attribute|
           org = find_by(attribute, organization, api_key, http: http)
           return @organization = org unless org.nil?
@@ -34,83 +32,78 @@ module Meraki
 
       def initialize(http, **attributes)
         @http = http
-        @api_key = @http.api_key
         @id = attributes[:id]
         @name = attributes[:name]
         @url = attributes[:url]
       end
 
-      def all
-        Organization.all(@api_key, http: @http)
-      end
-
       def api_key
-        @http.api_key
+        http.api_key
       end
 
       def networks
-        @http.networks(id).map { |network| NetworkFactory.create(@http, self, **network) }
+        http.networks(id).map { |network| NetworkFactory.create(self, **network) }
       end
     end
 
-    # class NetworkFactory
-    #   def self.create(*args, **kwargs)
-    #     type = case kwargs[:type]
-    #            when 'camera' then CameraNetwork
-    #            when 'switch' then SwitchNetwork
-    #            when 'wireless' then WirelessNetwork
-    #            when 'appliance' then ApplianceNetwork
-    #            when 'combined' then CombinedNetwork
-    #            else Network
-    #            end
-    #     type.new(*args, **kwargs)
-    #   end
-    # end
+    # description TODO
+    class NetworkFactory
+      def self.create(*args, **kwargs)
+        type = case kwargs[:type]
+               when 'camera' then CameraNetwork
+               when 'switch' then SwitchNetwork
+               when 'wireless' then WirelessNetwork
+               when 'appliance' then ApplianceNetwork
+               when 'combined' then CombinedNetwork
+               else Network
+               end
+        type.new(*args, **kwargs)
+      end
+    end
 
-    # class Network
-    #   attr_reader :organization, :id, :name
+    # description TODO
+    class Network
+      # TODO: add rest of attributes
+      attr_reader :organization, :id, :name
 
-    #   def self.init(organization)
-    #     @@organization = organization
-    #     @@http = @@organization.http
-    #   end
+      def self.all(organization)
+        raise ArgumentError, 'must pass an Organization' if organization.nil?
 
-    #   def self.all
-    #     org = @@organization
-    #     raise 'organization not registered with client' unless org
+        organization.networks
+      end
 
-    #     org.networks
-    #   end
+      def self.find(organization, &block)
+        all(organization).find(&block)
+      end
 
-    #   def self.find(&block)
-    #     all.find(&block)
-    #   end
+      def self.find_by_id(id, organization)
+        find(organization) { |network| network.id == id }
+      end
 
-    #   def self.find_by_id(id)
-    #     find { |network| network.id == id }
-    #   end
+      def self.find_by_name(name, organization)
+        find(organization) { |network| network.name == name }
+      end
 
-    #   def self.find_by_name(name)
-    #     find { |network| network.name == name }
-    #   end
+      def initialize(organization, **attributes)
+        @organization = organization
+        @id = attributes[:id]
+        @name = attributes[:name]
+      end
 
-    #   def initialize(http, organization, **attributes)
-    #     @http = http
-    #     @organization = organization
-    #     @id = attributes[:id]
-    #     @name = attributes[:name]
-    #   end
+      def api_key
+        organization.http.api_key
+      end
 
-    #   def devices
-    #     @http.devices(id).map { |device| DeviceFactory.create(@http, self, device) }
-    #   end
-    # end
+      def devices
+        @http.devices(id).map { |device| DeviceFactory.create(@http, self, device) }
+      end
+    end
 
-    # class CameraNetwork < Network; end
-    # class SwitchNetwork < Network; end
-    # class ApplianceNetwork < Network; end
-    # class WirelessNetwork < Network; end
-    # class CombinedNetwork < Network; end
+    class CameraNetwork < Network; end
+    class SwitchNetwork < Network; end
+    class ApplianceNetwork < Network; end
+    class WirelessNetwork < Network; end
+    class CombinedNetwork < Network; end
 
     # class DeviceFactory
     #   def self.create(*args, **kwargs)
