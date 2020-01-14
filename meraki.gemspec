@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'meraki'
   spec.version       = Meraki::VERSION
   spec.authors       = ['Jonathan Ellington']
-  spec.email         = ['jellingt@meraki.com']
+  spec.email         = ['ellingtonjp@gmail.com']
 
   spec.summary       = 'meraki'
   spec.description   = 'meraki'
@@ -37,7 +37,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'activesupport', '~> 6.0'
   spec.add_dependency 'httparty', '~> 0.17'
-  spec.add_dependency 'ipaddress', '~> 0.8'
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'byebug', '~> 11.0'
   spec.add_development_dependency 'pry', '~> 0.12'
