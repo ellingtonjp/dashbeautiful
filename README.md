@@ -20,23 +20,25 @@ Or install it yourself as:
 
 ## Usage
 
-    require 'meraki'
+```ruby
+require 'meraki'
 
-    KEY = 'my-awesome-api-key'
+KEY = 'my-awesome-api-key'
 
-    # Get all organizations that KEY has access to, and find one by name
-    organizations = Meraki::Organization.all api_key: KEY
-    dunder = organizations.find { |org| org.name == 'Dunder Mifflin Paper Co.' }
+# Get all organizations that KEY has access to, and find one by name
+organizations = Meraki::Organization.all api_key: KEY
+dunder = organizations.find { |org| org.name == 'Dunder Mifflin Paper Co.' }
 
-    # Find a network and get all its devices
-    scranton = dunder.networks.find_by(:name, 'Scranton, PA')
-    device_list = scranton.devices
+# Find a network and get all its devices
+scranton = dunder.networks.find_by(:name, 'Scranton, PA')
+device_list = scranton.devices
 
-    # Calls against the API are cached, so subsequent calls are fast
-    schrute_farms = dunder.networks.find_by(:name, 'Schrute Farms')  # fast, 'networks' returns cached result
+# Calls against the API are cached, so subsequent calls are fast
+schrute_farms = dunder.networks.find_by(:name, 'Schrute Farms')  # fast, 'networks' returns cached result
 
-    # You can force API access with a bang
-    schrute_farms = dunder.networks!.find_by(:id, '123456')  # slow, 'networks!' makes api call
+# You can force API access with a bang
+schrute_farms = dunder.networks!.find_by(:id, '123456')  # slow, 'networks!' makes api call
+```
 
 
 ## Development
