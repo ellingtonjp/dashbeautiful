@@ -41,9 +41,23 @@ module Meraki
         @organization_key2_ids = @organizations_key2.map { |org| org[:id] }
         @organization_key2_names = @organizations_key2.map { |org| org[:name] }
         @organization_key2_urls = @organizations_key2.map { |org| org[:url] }
+        @networks_org2 = [
+          { id: 4, name: 'network_4' },
+          { id: 5, name: 'network_5' },
+          { id: 6, name: 'network_6' }
+        ]
+        @network_org2_ids = @networks_org2.map { |network| network[:id] }
+        @network_org2_names = @networks_org2.map { |network| network[:name] }
+        @devices_network2 = [
+          { name: 'device_4', network_id: 2, serial: 'Q234-ABCD-5678', mac: '00:11:22:33:44:55', model: 'MV22', tags: '' },
+          { name: 'device_5', network_id: 2, serial: 'Q234-ABCD-5679', mac: '00:11:22:33:44:56', model: 'MR52', tags: 'one-tag' },
+          { name: 'device_6', network_id: 2, serial: 'Q234-ABCD-5670', mac: '00:11:22:33:44:57', model: 'MS350', tags: 'one-tag two-tag' }
+        ]
+        @device_network2_names = @devices_network2.map { |device| device[:name] }
         @api2 = instance_double('Meraki::API',
                                 organizations: @organizations_key2,
-                                networks: @networks_org1,
+                                networks: @networks_org2,
+                                devices: @devices_network2,
                                 key: @key2)
       end
 
@@ -85,6 +99,24 @@ module Meraki
                                   key: @key1)
             org = Organization.new api, **@organizations_key1.first
             expect(org.networks).to be_empty
+          end
+
+          it 'returns cached value' do
+            expect(@org.networks.map(&:id)).to eq @network_org1_ids
+            @org.api = @api2
+            expect(@org.networks.map(&:id)).to eq @network_org1_ids
+          end
+        end
+
+        describe 'networks!' do
+          it 'returns networks with correct ids' do
+            expect(@org.networks!.map(&:id)).to eq @network_org1_ids
+          end
+
+          it 'does not return cached value' do
+            expect(@org.networks!.map(&:id)).to eq @network_org1_ids
+            @org.api = @api2
+            expect(@org.networks!.map(&:id)).to eq @network_org2_ids
           end
         end
 
@@ -189,6 +221,24 @@ module Meraki
             org = Organization.new api, **@org_data
             empty_network = Network.new org, **@networks_org1.first
             expect(empty_network.devices).to be_empty
+          end
+
+          it 'returns cached value' do
+            expect(@network.devices.map(&:name)).to eq @device_network1_names
+            @org.api = @api2
+            expect(@network.devices.map(&:name)).to eq @device_network1_names
+          end
+        end
+
+        describe 'devices!' do
+          it 'returns devices with correct name' do
+            expect(@network.devices!.map(&:name)).to eq @device_network1_names
+          end
+
+          it 'does not return cached value' do
+            expect(@network.devices!.map(&:name)).to eq @device_network1_names
+            @org.api = @api2
+            expect(@network.devices!.map(&:name)).to eq @device_network2_names
           end
         end
 

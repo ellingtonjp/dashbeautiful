@@ -5,7 +5,8 @@ module Meraki
   module Dashboard
     # description TODO
     class Organization
-      attr_reader :api, :name, :id, :url
+      attr_accessor :api
+      attr_reader :name, :id, :url
 
       ATTRIBUTES = %i[id name url].freeze
 
@@ -42,7 +43,12 @@ module Meraki
       end
 
       def networks
-        api.networks(id).map { |network| Network.create(self, **network) }
+        @networks ||= api.networks(id).map { |network| Network.create(self, **network) }
+      end
+
+      def networks!
+        @networks = nil
+        networks
       end
     end
 
@@ -87,7 +93,12 @@ module Meraki
       end
 
       def devices
-        organization.api.devices(id).map { |device| Device.create(self, **device) }
+        @devices ||= organization.api.devices(id).map { |device| Device.create(self, **device) }
+      end
+
+      def devices!
+        @devices = nil
+        devices
       end
     end
 
