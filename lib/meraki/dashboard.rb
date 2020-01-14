@@ -42,12 +42,14 @@ module Meraki
       end
 
       def networks
-        api.networks(id).map { |network| NetworkFactory.create(self, **network) }
+        api.networks(id).map { |network| Network.create(self, **network) }
       end
     end
 
     # description TODO
-    class NetworkFactory
+    class Network
+      attr_reader :organization, :id, :name
+
       def self.create(*args, **kwargs)
         type = case kwargs[:type]
                when 'camera' then CameraNetwork
@@ -59,12 +61,6 @@ module Meraki
                end
         type.new(*args, **kwargs)
       end
-    end
-
-    # description TODO
-    class Network
-      # TODO: add rest of attributes
-      attr_reader :organization, :id, :name
 
       def self.all(organization)
         raise ArgumentError, 'must pass an Organization' if organization.nil?
@@ -90,12 +86,8 @@ module Meraki
         @name = attributes[:name]
       end
 
-      def api_key
-        organization.api.key
-      end
-
       def devices
-        @api.devices(id).map { |device| DeviceFactory.create(@api, self, device) }
+        @api.devices(id).map { |device| Device.create(@api, self, device) }
       end
     end
 
@@ -105,65 +97,40 @@ module Meraki
     class WirelessNetwork < Network; end
     class CombinedNetwork < Network; end
 
-    # class DeviceFactory
-    #   def self.create(*args, **kwargs)
-    #     type = case kwargs[:model]
-    #            when /MV/ then CameraDevice
-    #            when /MS/ then SwitchDevice
-    #            when /MR/ then WirelessDevice
-    #            when /MX/ then ApplianceDevice
-    #            else Device
-    #           end
-    #     type.new(*args, **kwargs)
-    #   end
-    # end
+    class Device
+      attr_reader :network, :name, :serial, :mac, :model, :tags
 
-    # class Device
-    #   attr_reader :organization, :network, :id, :name, :serial, :mac, :model, :tags, :firmware, :lanip, :mtunnel
+      def self.create(*args, **kwargs)
+        type = case kwargs[:model]
+               when /MV/ then CameraDevice
+               when /MS/ then SwitchDevice
+               when /MR/ then WirelessDevice
+               when /MX/ then ApplianceDevice
+               else Device
+              end
+        type.new(*args, **kwargs)
+      end
 
-    #   def initialize(api, network, **attributes)
-    #     @api = api
-    #     @organization = organization
-    #     @network = network
-    #     @id = attributes[:id]
-    #     @name = attributes[:name]
-    #     @serial = attributes[:serial]
-    #     @mac = attributes[:mac]
-    #     @model = attributes[:model]
-    #     @tags = attributes[:tags]
-    #     @tags = attributes[:firmware]
-    #     @lanip = attributes[:lanip]
-    #     @mtunnel = Dashboard.mtunnel(@mac)
-    #   end
-    # end
+      def self.all(network)
+        raise ArgumentError, 'must pass a Network' if network.nil?
 
-    # class CameraDevice < Device; end
-    # class SwitchDevice < Device; end
-    # class ApplianceDevice < Device; end
-    # class WirelessDevice < Device; end
-    # class CombinedDevice < Device; end
+        network.devices
+      end
 
-    # TODO: remove before publishing
-    # def self.mtunnel(device_mac)
-    #   mac = 0
-    #   # NOTE: do not do this by "removing ':' then parse as hex", as we dont know if mac addresses will always have leading zeros.
-    #   device_mac.split(':').reverse.each_with_index do |val, i|
-    #     # parse byte as hex. Shift ix8 bits, and add up
-    #     mac += val.to_i(16) << (i * 8)
-    #   end
-    #   prefix = 0xFD0A9B0901F70000 << 64
+      def initialize(network, **attributes)
+        @network = network
+        @name = attributes[:name]
+        @serial = attributes[:serial]
+        @mac = attributes[:mac]
+        @model = attributes[:model]
+        @tags = attributes[:tags]
+      end
+    end
 
-    #   bytes = prefix
-    #   bytes |= ((mac & 0xFDFFFF000000) ^ (2 << 40)) << 16
-    #   bytes |= 0xFFFE000000
-    #   bytes |= mac & 0xFFFFFF
-
-    #   # convert to string
-    #   ipv6 = bytes.to_s(16)
-    #   # carve up and add : for proper ipv6 formating
-    #   ipv6 = "#{ipv6[0..3]}:#{ipv6[4..7]}:#{ipv6[8..11]}:#{ipv6[12..15]}:#{ipv6[16..19]}:#{ipv6[20..23]}:#{ipv6[24..27]}:#{ipv6[28..31]}"
-    #   ipv6 = IPAddress::IPv6.new(ipv6)
-    #   ipv6.compressed
-    # end
+    class CameraDevice < Device; end
+    class SwitchDevice < Device; end
+    class ApplianceDevice < Device; end
+    class WirelessDevice < Device; end
+    class CombinedDevice < Device; end
   end
 end

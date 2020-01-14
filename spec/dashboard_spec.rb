@@ -12,7 +12,6 @@ module Meraki
         @organization_key1_ids = @organizations_key1.map { |org| org[:id] }
         @organization_key1_names = @organizations_key1.map { |org| org[:name] }
         @organization_key1_urls = @organizations_key1.map { |org| org[:url] }
-        # TODO: add rest of attributes
         @networks_org1 = [
           { id: 1, name: 'network_1' },
           { id: 2, name: 'network_2' },
@@ -20,6 +19,11 @@ module Meraki
         ]
         @network_org1_ids = @networks_org1.map { |network| network[:id] }
         @network_org1_names = @networks_org1.map { |network| network[:name] }
+        @devices_network1 = [
+          { name: 'device_1', network_id: 1, serial: 'Q234-ABCD-5678', mac: '00:11:22:33:44:55', model: 'MV22', tags: '' },
+          { name: 'device_2', network_id: 1, serial: 'Q234-ABCD-5679', mac: '00:11:22:33:44:56', model: 'MR52', tags: 'one-tag' },
+          { name: 'device_3', network_id: 1, serial: 'Q234-ABCD-5670', mac: '00:11:22:33:44:57', model: 'MS350', tags: 'one-tag two-tag' },
+        ]
         @api1 = instance_double('Meraki::API',
                                  organizations: @organizations_key1,
                                  networks: @networks_org1,
@@ -154,16 +158,11 @@ module Meraki
         end
       end
 
-      # TODO: add rest of network attributes
       describe Network do
         before :each do
           @org_data = @organizations_key1.first
           @org = Organization.new @api1, **@org_data
           @network = Network.new @org, **@networks_org1.first
-        end
-
-        it 'returns correct api key' do
-          expect(@network.api_key).to eq @api1.key
         end
 
         describe 'class methods' do
@@ -225,6 +224,19 @@ module Meraki
           org = Organization.new @api1, **@organizations_key1.first
           network = Network.new(org, id: 11, name: 'network')
           expect(network.name).to eq 'network'
+        end
+      end
+
+      describe Device do
+        before :each do
+          @org_data = @organizations_key1.first
+          @org = Organization.new @api1, **@org_data
+          @network = Network.new @org, **@networks_org1.first
+          @device = Device.new @network, **@devices_network1.first
+        end
+
+        it 'returns correct name' do
+          expect(@device.name).to eq @devices_network1.first[:name]
         end
       end
     end
