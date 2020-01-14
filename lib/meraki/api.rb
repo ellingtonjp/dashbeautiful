@@ -1,5 +1,4 @@
 require 'httparty'
-require 'active_support/core_ext/hash'
 
 module Meraki
   # description TODO
@@ -19,19 +18,25 @@ module Meraki
     end
 
     def organizations
-      get('/organizations').map(&:symbolize_keys)
+      get('/organizations').map { |h| symbolize_keys(h) }
     end
 
     def networks(organization_id)
-      get("/organizations/#{organization_id}/networks").map(&:symbolize_keys)
+      get("/organizations/#{organization_id}/networks").map { |h| symbolize_keys(h) }
     end
 
     def devices(network_id)
-      get("/networks/#{network_id}/devices").map(&:symbolize_keys)
+      get("/networks/#{network_id}/devices").map { |h| symbolize_keys(h) }
     end
 
     def get(path, **options)
       @requestor.get(@base_url + path, @options.merge(options))
+    end
+
+    private
+
+    def symbolize_keys(hash)
+      Hash[hash.map{|(k,v)| [k.to_sym,v]}]
     end
   end
 end
