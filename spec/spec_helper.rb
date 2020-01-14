@@ -1,6 +1,5 @@
 require 'bundler/setup'
 require 'byebug'
-
 require 'meraki'
 
 RSpec.configure do |config|
