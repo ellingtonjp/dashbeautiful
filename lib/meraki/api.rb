@@ -1,4 +1,5 @@
 require 'httparty'
+require 'active_support/core_ext/hash'
 
 module Meraki
   # description TODO
