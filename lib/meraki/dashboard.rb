@@ -87,7 +87,7 @@ module Meraki
       end
 
       def devices
-        @api.devices(id).map { |device| Device.create(@api, self, device) }
+        organization.api.devices(id).map { |device| Device.create(self, **device) }
       end
     end
 

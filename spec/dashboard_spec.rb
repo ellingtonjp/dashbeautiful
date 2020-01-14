@@ -24,9 +24,11 @@ module Meraki
           { name: 'device_2', network_id: 1, serial: 'Q234-ABCD-5679', mac: '00:11:22:33:44:56', model: 'MR52', tags: 'one-tag' },
           { name: 'device_3', network_id: 1, serial: 'Q234-ABCD-5670', mac: '00:11:22:33:44:57', model: 'MS350', tags: 'one-tag two-tag' },
         ]
+        @device_network1_names = @devices_network1.map { |device| device[:name] }
         @api1 = instance_double('Meraki::API',
                                  organizations: @organizations_key1,
                                  networks: @networks_org1,
+                                 devices: @devices_network1,
                                  key: @key1)
 
         # test data associated with api key 2
@@ -163,6 +165,31 @@ module Meraki
           @org_data = @organizations_key1.first
           @org = Organization.new @api1, **@org_data
           @network = Network.new @org, **@networks_org1.first
+        end
+
+        it 'should return the correct name' do
+          expect(@network.name).to eq @networks_org1.first[:name]
+        end
+
+        describe 'devices' do
+          it 'returns correct number of devices' do
+            expect(@network.devices.length).to eq @devices_network1.length
+          end
+
+          it 'returns list of device objects with correct names' do
+            expect(@network.devices.map(&:name)).to eq @device_network1_names
+          end
+
+          it 'returns empty array on network with no devices' do
+            api = instance_double('Meraki::API',
+                                  organizations: @organizations_key1,
+                                  networks: @networks_org1,
+                                  devices: [],
+                                  key: @key1)
+            org = Organization.new api, **@org_data
+            empty_network = Network.new org, **@networks_org1.first
+            expect(empty_network.devices).to be_empty
+          end
         end
 
         describe 'class methods' do
