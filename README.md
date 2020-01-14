@@ -1,8 +1,6 @@
 # Meraki
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/meraki`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+User-friendly access to Meraki's wonderful Dashboard API. API calls are cached for fast access.
 
 ## Installation
 
@@ -22,7 +20,24 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    require 'meraki'
+
+    KEY = 'my-awesome-api-key'
+
+    # Get all organizations that KEY has access to, and find one by name
+    organizations = Meraki::Organization.all api_key: KEY
+    dunder = organizations.find { |org| org.name == 'Dunder Mifflin Paper Co.' }
+
+    # Find a network and get all its devices
+    scranton = dunder.networks.find_by(:name, 'Scranton, PA')
+    device_list = scranton.devices
+
+    # Calls against the API are cached, so subsequent calls are fast
+    schrute_farms = dunder.networks.find_by(:name, 'Schrute Farms')  # fast, 'networks' returns cached result
+
+    # You can force API access with a bang
+    schrute_farms = dunder.networks!.find_by(:id, '123456')  # slow, 'networks!' makes api call
+
 
 ## Development
 
@@ -32,7 +47,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/meraki. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/ellingtonjp/meraki. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
