@@ -9,7 +9,8 @@ module Meraki
       @key = key
       @base_url = 'https://api.meraki.com/api/v0'
       @headers = {
-        'X-Cisco-Meraki-API-Key' => key
+        'X-Cisco-Meraki-API-Key' => key,
+        'Content-Type' => 'application/json'
       }
       @options = {
         headers: @headers
@@ -30,7 +31,14 @@ module Meraki
     end
 
     def get(path, **options)
-      @requestor.get(@base_url + path, @options.merge(options))
+      options = @options.merge(options)
+      @requestor.get(@base_url + path, options)
+    end
+
+    def put(path, body:, **options)
+      options = @options.merge(options)
+      options = options.merge(body: body.to_json)
+      @requestor.put(@base_url + path, options)
     end
 
     private
