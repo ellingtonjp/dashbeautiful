@@ -34,6 +34,11 @@ module Meraki
       @url = attributes[:url]
     end
 
+    def name=(value)
+      api.update_organization(id, name: value)
+      @name = value
+    end
+
     def api_key
       api.key
     end

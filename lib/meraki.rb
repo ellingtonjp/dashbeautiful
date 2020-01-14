@@ -5,6 +5,5 @@ require 'meraki/organization'
 require 'meraki/version'
 
 module Meraki
-  class Error < StandardError; end
-  # Your code goes here...
+  class APIRequestError < StandardError; end
 end

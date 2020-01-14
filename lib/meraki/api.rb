@@ -22,6 +22,15 @@ module Meraki
       get('/organizations').map { |h| symbolize_keys(h) }
     end
 
+    def update_organization(organization_id, body)
+      valid_keys = [:name]
+
+      raise ArgumentError, 'body must be a hash' unless body.is_a? Hash
+      raise ArgumentError, 'body cannot be empty' if body.empty?
+
+      put("/organizations/#{organization_id}", valid_keys: valid_keys, body: body)
+    end
+
     def networks(organization_id)
       get("/organizations/#{organization_id}/networks").map { |h| symbolize_keys(h) }
     end
@@ -32,13 +41,23 @@ module Meraki
 
     def get(path, **options)
       options = @options.merge(options)
-      @requestor.get(@base_url + path, options)
+      response = @requestor.get(@base_url + path, options)
+
+      raise APIRequestError if response.code != 200
+
+      response
     end
 
-    def put(path, body:, **options)
+    def put(path, valid_keys:, body:, **options)
+      raise ArgumentError, "body key can only be #{valid_keys}" unless valid_keys.all? { |key| body.key? key }
+
       options = @options.merge(options)
       options = options.merge(body: body.to_json)
-      @requestor.put(@base_url + path, options)
+      response = @requestor.put(@base_url + path, options)
+
+      raise APIRequestError if response.code != 200
+
+      response
     end
 
     private
