@@ -1,7 +1,7 @@
 module Meraki
   # description TODO
   class Network
-    attr_reader :organization, :id, :name
+    attr_reader :organization, :id, :name, :tags
 
     def self.create(*args, **kwargs)
       type = case kwargs[:type]
@@ -37,6 +37,11 @@ module Meraki
       @organization = organization
       @id = attributes[:id]
       @name = attributes[:name]
+      @tags = attributes[:tags]
+
+      raise ArgumentError if @id.nil? || @name.nil? || @tags.nil?
+
+      @tags = @tags.split.uniq
     end
 
     def devices

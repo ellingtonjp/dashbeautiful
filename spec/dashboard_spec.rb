@@ -12,12 +12,14 @@ module Meraki
       @organization_key1_names = @organizations_key1.map { |org| org[:name] }
       @organization_key1_urls = @organizations_key1.map { |org| org[:url] }
       @networks_org1 = [
-        { id: 1, name: 'network_1' },
-        { id: 2, name: 'network_2' },
-        { id: 3, name: 'network_3' }
+        { id: 1, name: 'network_1', tags: '' },
+        { id: 2, name: 'network_2', tags: 'network-tag' },
+        { id: 3, name: 'network_3', tags: 'network-tag1 network-tag2' },
+        { id: 4, name: 'network_4', tags: 'network-tag1 network-tag2 network-tag2' }
       ]
       @network_org1_ids = @networks_org1.map { |network| network[:id] }
       @network_org1_names = @networks_org1.map { |network| network[:name] }
+      @network_org1_tags = @networks_org1.map { |network| network[:tags] }
       @devices_network1 = [
         { name: 'device_1', network_id: 1, serial: 'Q234-ABCD-5678', mac: '00:11:22:33:44:55', model: 'MV22', tags: '' },
         { name: 'device_2', network_id: 1, serial: 'Q234-ABCD-5679', mac: '00:11:22:33:44:56', model: 'MR52', tags: 'one-tag' },
@@ -41,12 +43,13 @@ module Meraki
       @organization_key2_names = @organizations_key2.map { |org| org[:name] }
       @organization_key2_urls = @organizations_key2.map { |org| org[:url] }
       @networks_org2 = [
-        { id: 4, name: 'network_4' },
-        { id: 5, name: 'network_5' },
-        { id: 6, name: 'network_6' }
+        { id: 4, name: 'network_4', tags: '' },
+        { id: 5, name: 'network_5', tags: 'network-tag' },
+        { id: 6, name: 'network_6', tags: 'network-tag1 network-tag2' }
       ]
       @network_org2_ids = @networks_org2.map { |network| network[:id] }
       @network_org2_names = @networks_org2.map { |network| network[:name] }
+      @network_org2_tags = @networks_org2.map { |network| network[:tags] }
       @devices_network2 = [
         { name: 'device_4', network_id: 2, serial: 'Q234-ABCD-5678', mac: '00:11:22:33:44:55', model: 'MV22', tags: '' },
         { name: 'device_5', network_id: 2, serial: 'Q234-ABCD-5679', mac: '00:11:22:33:44:56', model: 'MR52', tags: 'one-tag' },
@@ -191,24 +194,64 @@ module Meraki
     end
 
     describe Network do
-      # TODO: tags tests
       before :each do
         @org_data = @organizations_key1.first
         @org = Organization.new @api1, **@org_data
-        @network = Network.new @org, **@networks_org1.first
+        @network1 = Network.new @org, **@networks_org1[0]
+        @network2 = Network.new @org, **@networks_org1[1]
+        @network3 = Network.new @org, **@networks_org1[2]
+        @network4 = Network.new @org, **@networks_org1[3]
       end
 
-      it 'should return the correct name' do
-        expect(@network.name).to eq @networks_org1.first[:name]
+      describe 'initialize' do
+        it 'initializes' do
+          expect(Network.new(@org, id: 1, name: 'network', tags: '')).to be_kind_of Network
+        end
+
+        it 'returns correct id' do
+          expect(@network1.id).to eq 1
+        end
+
+        it 'returns correct name' do
+          expect(@network1.name).to eq 'network_1'
+        end
+
+        it 'returns empty list when tags empty' do
+          expect(@network1.tags.sort).to eq []
+        end
+
+        it 'returns list containing single tag when single tag' do
+          expect(@network2.tags.sort).to eq ['network-tag']
+        end
+
+        it 'returns list of tags when multiple tags' do
+          expect(@network3.tags.sort).to eq %w[network-tag1 network-tag2]
+        end
+
+        it 'returns list of unique tags when same tag specified twice' do
+          expect(@network4.tags.sort).to eq(%w[network-tag1 network-tag2])
+        end
+
+        it 'raises ArgumentError if id is nil' do
+          expect { Network.new(@org, name: 'network', tags: '') }.to raise_error ArgumentError
+        end
+
+        it 'raises ArgumentError if name is nil' do
+          expect { Network.new(@org, id: 1, tags: '') }.to raise_error ArgumentError
+        end
+
+        it 'raises ArgumentError if tags is nil' do
+          expect { Network.new(@org, id: 1, name: 'network') }.to raise_error ArgumentError
+        end
       end
 
       describe 'devices' do
         it 'returns correct number of devices' do
-          expect(@network.devices.length).to eq @devices_network1.length
+          expect(@network1.devices.length).to eq @devices_network1.length
         end
 
         it 'returns list of device objects with correct names' do
-          expect(@network.devices.map(&:name)).to eq @device_network1_names
+          expect(@network1.devices.map(&:name)).to eq @device_network1_names
         end
 
         it 'returns empty array on network with no devices' do
@@ -223,21 +266,21 @@ module Meraki
         end
 
         it 'returns cached value' do
-          expect(@network.devices.map(&:name)).to eq @device_network1_names
+          expect(@network1.devices.map(&:name)).to eq @device_network1_names
           @org.api = @api2
-          expect(@network.devices.map(&:name)).to eq @device_network1_names
+          expect(@network1.devices.map(&:name)).to eq @device_network1_names
         end
       end
 
       describe 'devices!' do
         it 'returns devices with correct name' do
-          expect(@network.devices!.map(&:name)).to eq @device_network1_names
+          expect(@network1.devices!.map(&:name)).to eq @device_network1_names
         end
 
         it 'does not return cached value' do
-          expect(@network.devices!.map(&:name)).to eq @device_network1_names
+          expect(@network1.devices!.map(&:name)).to eq @device_network1_names
           @org.api = @api2
-          expect(@network.devices!.map(&:name)).to eq @device_network2_names
+          expect(@network1.devices!.map(&:name)).to eq @device_network2_names
         end
       end
 
@@ -293,13 +336,6 @@ module Meraki
             expect(network).to be_nil
           end
         end
-      end
-
-      it 'initializes' do
-        puts @organizations_key.inspect
-        org = Organization.new @api1, **@organizations_key1.first
-        network = Network.new(org, id: 11, name: 'network')
-        expect(network.name).to eq 'network'
       end
     end
 
