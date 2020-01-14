@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    meraki (0.1.0)
+    meraki (0.1.1)
       httparty (~> 0.17)
 
 GEM
