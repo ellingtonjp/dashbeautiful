@@ -25,7 +25,7 @@ module Meraki
       def self.init(organization:, api_key:, api: API.new(api_key))
         ATTRIBUTES.each do |attribute|
           org = find_by(attribute, organization, api_key, api: api)
-          return @organization = org unless org.nil?
+          return org unless org.nil?
         end
         raise ArgumentError, "Could not find organization: #{organization}"
       end
