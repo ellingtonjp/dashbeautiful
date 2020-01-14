@@ -22,14 +22,14 @@ module Meraki
         @devices_network1 = [
           { name: 'device_1', network_id: 1, serial: 'Q234-ABCD-5678', mac: '00:11:22:33:44:55', model: 'MV22', tags: '' },
           { name: 'device_2', network_id: 1, serial: 'Q234-ABCD-5679', mac: '00:11:22:33:44:56', model: 'MR52', tags: 'one-tag' },
-          { name: 'device_3', network_id: 1, serial: 'Q234-ABCD-5670', mac: '00:11:22:33:44:57', model: 'MS350', tags: 'one-tag two-tag' },
+          { name: 'device_3', network_id: 1, serial: 'Q234-ABCD-5670', mac: '00:11:22:33:44:57', model: 'MS350', tags: 'one-tag two-tag' }
         ]
         @device_network1_names = @devices_network1.map { |device| device[:name] }
         @api1 = instance_double('Meraki::API',
-                                 organizations: @organizations_key1,
-                                 networks: @networks_org1,
-                                 devices: @devices_network1,
-                                 key: @key1)
+                                organizations: @organizations_key1,
+                                networks: @networks_org1,
+                                devices: @devices_network1,
+                                key: @key1)
 
         # test data associated with api key 2
         @key2 = 'testapikey'
@@ -42,10 +42,9 @@ module Meraki
         @organization_key2_names = @organizations_key2.map { |org| org[:name] }
         @organization_key2_urls = @organizations_key2.map { |org| org[:url] }
         @api2 = instance_double('Meraki::API',
-                                 organizations: @organizations_key2,
-                                 networks: @networks_org1,
-                                 key: @key2)
-
+                                organizations: @organizations_key2,
+                                networks: @networks_org1,
+                                key: @key2)
       end
 
       describe Organization do
@@ -161,6 +160,7 @@ module Meraki
       end
 
       describe Network do
+        # TODO: tags tests
         before :each do
           @org_data = @organizations_key1.first
           @org = Organization.new @api1, **@org_data
@@ -213,7 +213,7 @@ module Meraki
 
           describe 'find' do
             it 'returns network with correct id' do
-              network = Network.find(@org) { |network| network.id == 1 }
+              network = Network.find(@org) { |n| n.id == 1 }
               expect(network.id).to eq 1
             end
 
@@ -255,6 +255,7 @@ module Meraki
       end
 
       describe Device do
+        # TODO: tags tests
         before :each do
           @org_data = @organizations_key1.first
           @org = Organization.new @api1, **@org_data

@@ -97,6 +97,7 @@ module Meraki
     class WirelessNetwork < Network; end
     class CombinedNetwork < Network; end
 
+    # description TODO
     class Device
       attr_reader :network, :name, :serial, :mac, :model, :tags
 
@@ -107,7 +108,7 @@ module Meraki
                when /MR/ then WirelessDevice
                when /MX/ then ApplianceDevice
                else Device
-              end
+               end
         type.new(*args, **kwargs)
       end
 
