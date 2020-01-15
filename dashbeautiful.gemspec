@@ -1,16 +1,16 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'meraki/version'
+require 'dashbeautiful/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'meraki'
-  spec.version       = Meraki::VERSION
+  spec.name          = 'dashbeautiful'
+  spec.version       = Dashbeautiful::VERSION
   spec.authors       = ['Jonathan Ellington']
   spec.email         = ['ellingtonjp@gmail.com']
 
-  spec.summary       = 'meraki'
-  spec.description   = 'meraki'
-  spec.homepage      = 'http://github.com/ellingtonjp/meraki'
+  spec.summary       = 'dashbeautiful'
+  spec.description   = 'dashbeautiful'
+  spec.homepage      = 'http://github.com/ellingtonjp/dashbeautiful'
   spec.license       = 'MIT'
 
   # Specify which files should be added to the gem when it is released.

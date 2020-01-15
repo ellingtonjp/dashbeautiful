@@ -1,4 +1,4 @@
-module Meraki
+module Dashbeautiful
   # description TODO
   class Network
     attr_reader :organization, :id, :name, :tags

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    meraki (0.1.2)
+    dashbeautiful (0.1.0)
       httparty (~> 0.17)
 
 GEM
@@ -27,7 +27,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     rainbow (3.0.0)
-    rake (10.5.0)
+    rake (12.3.2)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -57,9 +57,9 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.0)
   byebug (~> 11.0)
-  meraki!
+  dashbeautiful!
   pry (~> 0.12)
-  rake (~> 10.0)
+  rake (~> 12.0)
   rspec (~> 3.0)
   rubocop (~> 0.79)
 

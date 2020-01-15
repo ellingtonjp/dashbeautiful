@@ -1,6 +1,6 @@
 require 'bundler/setup'
 require 'byebug'
-require 'meraki'
+require 'dashbeautiful'
 
 # loads all the fixtures under spec/fixtures/*.yml creates methods based on
 # file names, so spec/fixtures/data.yml creates method data_fixture
@@ -14,7 +14,7 @@ def load_fixtures
 end
 
 def api_double(key: 'test-double-key', organizations: [])
-  double('Meraki::API',
+  double('Dashbeautiful::API',
          key: key,
          organizations: organizations)
 end

@@ -1,4 +1,4 @@
-module Meraki
+module Dashbeautiful
   # description TODO
   class Device
     attr_reader :network, :name, :serial, :mac, :model, :tags

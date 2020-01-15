@@ -1,6 +1,6 @@
 # TODO: test update methods
-module Meraki
-  RSpec.describe Meraki do
+module Dashbeautiful
+  RSpec.describe Dashbeautiful do
     let(:api_key) { 'test-api-key' }
     let(:orgs) { organizations_fixture }
     let(:networks) { networks_fixture }

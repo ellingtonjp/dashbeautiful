@@ -1,13 +1,13 @@
-# Meraki
+# Dashbeautiful
 
-User-friendly access to Meraki's wonderful Dashboard API. API calls are cached for fast access.
+Beautiful interface Meraki's wonderful Dashboard API. API calls are cached for fast access.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'meraki'
+gem 'dashbeautiful'
 ```
 
 And then execute:
@@ -16,17 +16,17 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install meraki
+    $ gem install dashbeautiful
 
 ## Usage
 
 ```ruby
-require 'meraki'
+require 'dashbeautiful'
 
 KEY = 'my-awesome-api-key'
 
 # Get all organizations that KEY has access to, and find one by name
-organizations = Meraki::Organization.all api_key: KEY
+organizations = Dashbeautiful::Organization.all api_key: KEY
 dunder = organizations.find { |org| org.name == 'Dunder Mifflin Paper Co.' }
 
 # Find a network and get all its devices
@@ -49,7 +49,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/ellingtonjp/meraki. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/ellingtonjp/dashbeautiful. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
@@ -57,4 +57,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Meraki project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/meraki/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Dashbeautiful project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/ellingtonjp/dashbeautiful/blob/master/CODE_OF_CONDUCT.md).

@@ -1,6 +1,6 @@
 require 'httparty'
 
-module Meraki
+module Dashbeautiful
   # description TODO
   class API
     attr_reader :key

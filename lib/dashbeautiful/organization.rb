@@ -1,4 +1,4 @@
-module Meraki
+module Dashbeautiful
   # description TODO
   class Organization
     attr_accessor :api
