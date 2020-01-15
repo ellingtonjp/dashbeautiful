@@ -23,7 +23,7 @@ module Meraki
     end
 
     def update_organization(organization_id, body)
-      valid_keys = [:name]
+      valid_keys = %i[name]
 
       raise ArgumentError, 'body must be a hash' unless body.is_a? Hash
       raise ArgumentError, 'body cannot be empty' if body.empty?

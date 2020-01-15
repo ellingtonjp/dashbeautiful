@@ -1,0 +1,20 @@
+:device_mv_no_tags:
+  :name: 'device one'
+  :serial: 'Q234-ABCD-0001'
+  :mac: '00:00:00:00:00:01'
+  :model: 'MV22'
+  :tags: ''
+
+:device_mr_one_tag:
+  :name: 'device two'
+  :serial: 'Q234-ABCD-0002'
+  :mac: '00:00:00:00:00:02'
+  :model: 'MR42'
+  :tags: 'device-tag-one'
+
+:device_ms_two_tags:
+  :name: 'device three'
+  :serial: 'Q234-ABCD-0003'
+  :mac: '00:00:00:00:00:03'
+  :model: 'MS350'
+  :tags: 'device-tag-one device-tag-two'

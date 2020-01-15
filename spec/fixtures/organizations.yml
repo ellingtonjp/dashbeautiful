@@ -1,0 +1,12 @@
+:organization_one:
+  :id: 1
+  :name: 'organization one'
+  :url: 'https://dashboard.meraki.com/o/organization_one'
+:organization_two:
+  :id: 2
+  :name: 'organization two'
+  :url: 'https://dashboard.meraki.com/o/organization_two'
+:organization_two:
+  :id: 3
+  :name: 'organization two'
+  :url: 'https://dashboard.meraki.com/o/organization_two'

@@ -1,0 +1,19 @@
+:network_no_tags:
+  :id: 0
+  :name: 'network_with_no_tags'
+  :tags: ''
+
+:network_one_tag:
+  :id: 1
+  :name: 'network_with_one_tag'
+  :tags: 'network-tag-one'
+
+:network_two_tags:
+  :id: 2
+  :name: 'network_with_one_tag'
+  :tags: 'network-tag-one network-tag-two'
+
+:network_three_tags_not_unique:
+  :id: 3
+  :name: 'network_with_one_tag'
+  :tags: 'network-tag-one network-tag-two network-tag-two'
