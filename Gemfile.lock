@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dashbeautiful (0.1.0)
+    dashbeautiful (0.0.1)
       httparty (~> 0.17)
 
 GEM

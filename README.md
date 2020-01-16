@@ -23,7 +23,7 @@ Or install it yourself as:
 ```ruby
 require 'dashbeautiful'
 
-KEY = 'my-awesome-api-key'
+KEY = 'my-beautiful-api-key'
 
 # Get all organizations that KEY has access to, and find one by name
 organizations = Dashbeautiful::Organization.all api_key: KEY
