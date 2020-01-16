@@ -32,6 +32,13 @@ module Dashbeautiful
       @id = attributes[:id]
       @name = attributes[:name]
       @url = attributes[:url]
+
+      # TODO: this is currently in Organization, Network, and Device. If you
+      #       change in one, you should change in the other. Should probably
+      #       figure out how to DRY this out
+      instance_variables.each do |var|
+        raise ArgumentError, "cannot instantiate with nil value #{var}" if instance_variable_get(var).nil?
+      end
     end
 
     def name=(value)

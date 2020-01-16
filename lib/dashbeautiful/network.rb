@@ -37,11 +37,16 @@ module Dashbeautiful
       @organization = organization
       @id = attributes[:id]
       @name = attributes[:name]
-      @tags = attributes[:tags]
+      @tags = attributes[:tags] || ''
 
-      raise ArgumentError if @id.nil? || @name.nil? || @tags.nil?
+      # TODO: this is currently in Organization, Network, and Device. If you
+      #       change in one, you should change in the other. Should probably
+      #       figure out how to DRY this out
+      instance_variables.each do |var|
+        raise ArgumentError, "cannot instantiate with nil value #{var}" if instance_variable_get(var).nil?
+      end
 
-      @tags = @tags.split.uniq
+      @tags = @tags.split.uniq # same as in Device
     end
 
     def devices

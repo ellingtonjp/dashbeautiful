@@ -31,6 +31,24 @@ module Dashbeautiful
         expect(organization.url).to eq(org_data[:url])
       end
 
+      describe 'initialize' do
+        it 'raises ArgumentError if api is nil' do
+          expect { Organization.new(nil, id: 1, name: 'org', url: 'url') }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if id is nil' do
+          expect { Organization.new(api, id: nil, name: 'org', url: 'url') }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if name is nil' do
+          expect { Organization.new(api, id: 1, name: nil, url: 'url') }.to raise_error(ArgumentError)
+        end
+
+        it 'does not raise error if url is nil' do
+          expect { Organization.new(api, id: 1, name: 'org', url: nil) }.to raise_error(ArgumentError)
+        end
+      end
+
       describe 'networks' do
         it 'returns correct number of networks' do
           expect(organization.networks.length).to eq(networks.length)
@@ -166,6 +184,28 @@ module Dashbeautiful
           expect(network.name).to eq 'network_with_one_tag'
         end
 
+        it 'raises ArgumentError if organization is nil' do
+          expect { Network.new(nil, id: 1, name: 'network', tags: '') }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if id is nil' do
+          expect { Network.new(organization, name: 'network', tags: '') }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if name is nil' do
+          expect { Network.new(organization, id: 1, tags: '') }.to raise_error(ArgumentError)
+        end
+
+        it 'does not raise error if tags is nil' do
+          expect { Network.new(organization, id: 1, name: 'network', tags: nil) }.to_not raise_error
+        end
+      end
+
+      describe 'tags' do
+        it 'returns empty list when initialized with nil tags' do
+          expect(Network.new(organization, id: 1, name: 'network', tags: nil).tags).to be_empty
+        end
+
         it 'returns empty list when tags empty' do
           expect(network_no_tags.tags).to eq []
         end
@@ -180,18 +220,6 @@ module Dashbeautiful
 
         it 'returns list of unique tags when same tag specified twice' do
           expect(network_three_tags_not_unique.tags.sort).to eq(%w[network-tag-one network-tag-two])
-        end
-
-        it 'raises ArgumentError if id is nil' do
-          expect { Network.new(@org, name: 'network', tags: '') }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if name is nil' do
-          expect { Network.new(@org, id: 1, tags: '') }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if tags is nil' do
-          expect { Network.new(@org, id: 1, name: 'network') }.to raise_error(ArgumentError)
         end
       end
 
@@ -304,7 +332,8 @@ module Dashbeautiful
       # TODO: more specs
       let(:organization) { Organization.new api, **orgs.values.first }
       let(:network) { Network.new(organization, **networks[:network_no_tags]) }
-      let(:device) { Device.new(network, **devices[:device_mv_no_tags]) }
+      let(:device_data) { devices[:device_mv_no_tags] }
+      let(:device) { Device.new(network, **device_data) }
 
       before :each do
         # allow(api) calls
@@ -312,6 +341,37 @@ module Dashbeautiful
 
       it 'returns correct name' do
         expect(device.name).to eq devices[:device_mv_no_tags][:name]
+      end
+
+      describe 'initialize' do
+        it 'raises ArgumentError if network is nil' do
+          expect { Device.new(nil, **device_data) }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if name is nil' do
+          device_data[:name] = nil
+          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if serial is nil' do
+          device_data[:serial] = nil
+          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if mac is nil' do
+          device_data[:mac] = nil
+          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
+        end
+
+        it 'raises ArgumentError if model is nil' do
+          device_data[:model] = nil
+          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
+        end
+
+        it 'does not raise error if tags is nil' do
+          device_data[:tags] = nil
+          expect { Device.new(network, **device_data) }.to_not raise_error
+        end
       end
     end
   end
