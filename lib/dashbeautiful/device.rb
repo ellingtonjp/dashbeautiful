@@ -1,9 +1,12 @@
 module Dashbeautiful
   # description TODO
-  class Device
-    attr_reader :network, :name, :serial, :mac, :model, :tags
+  class Device < DashboardBase
+    attr_reader :network
 
-    def self.create(*args, **kwargs)
+    dash_attr_reader :serial, :mac, :model
+    dash_attr_accessor :name, :tags
+
+    def self.create(**kwargs)
       type = case kwargs[:model]
              when /MV/ then CameraDevice
              when /MS/ then SwitchDevice
@@ -11,31 +14,26 @@ module Dashbeautiful
              when /MX/ then ApplianceDevice
              else Device
              end
-      type.new(*args, **kwargs)
+      type.new(**kwargs)
     end
 
-    def self.all(network)
-      raise ArgumentError, 'must pass a Network' if network.nil?
+    def initialize(network:, **attrs)
+      raise ArgumentError if network.nil?
 
-      network.devices
-    end
-
-    def initialize(network, **attributes)
       @network = network
-      @name = attributes[:name]
-      @serial = attributes[:serial]
-      @mac = attributes[:mac]
-      @model = attributes[:model]
-      @tags = attributes[:tags] || ''
+      super(**attrs)
+    end
 
-      # TODO: this is currently in Organization, Network, and Device. If you
-      #       change in one, you should change in the other. Should probably
-      #       figure out how to DRY this out
-      instance_variables.each do |var|
-        raise ArgumentError, "cannot instantiate with nil value #{var}" if instance_variable_get(var).nil?
-      end
+    def self._all(api:)
+      Organization.all(api).map(&:networks).map(&:devices).flatten
+    end
 
-      @tags = @tags.split.uniq # same as in Network
+    def attributes_load
+      api.device(network.id, serial)
+    end
+
+    def attributes_update(**kwargs)
+      api.update_device(network.id, serial, **kwargs)
     end
   end
 

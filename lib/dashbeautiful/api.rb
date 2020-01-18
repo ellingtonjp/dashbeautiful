@@ -1,5 +1,7 @@
 require 'httparty'
 
+# TODO: spec for when api returns no tag attributes
+#  perhaps generalize
 module Dashbeautiful
   # description TODO
   class API
@@ -18,6 +20,10 @@ module Dashbeautiful
       @requestor = requestor
     end
 
+    def organization(id)
+      symbolize_keys(get("/organizations/#{id}"))
+    end
+
     def organizations
       get('/organizations').map { |h| symbolize_keys(h) }
     end
@@ -31,12 +37,49 @@ module Dashbeautiful
       put("/organizations/#{organization_id}", valid_keys: valid_keys, body: body)
     end
 
-    def networks(organization_id)
-      get("/organizations/#{organization_id}/networks").map { |h| symbolize_keys(h) }
+    def network(id)
+      network = symbolize_keys(get("/networks/#{id}"))
+      network[:tags] ||= ''
+      network
     end
 
-    def devices(network_id)
-      get("/networks/#{network_id}/devices").map { |h| symbolize_keys(h) }
+    def networks(organization_id)
+      networks = get("/organizations/#{organization_id}/networks").map { |h| symbolize_keys(h) }
+      networks.each { |network| network[:tags] ||= '' }
+    end
+
+    def update_network(network_id, body)
+      valid_keys = %i[name tags]
+
+      raise ArgumentError, 'body must be a hash' unless body.is_a? Hash
+      raise ArgumentError, 'body cannot be empty' if body.empty?
+
+      put("/networks/#{network_id}", valid_keys: valid_keys, body: body)
+    end
+
+    def update_device(network_id, device_serial, body)
+      valid_keys = %i[name tags]
+
+      raise ArgumentError, 'body must be a hash' unless body.is_a? Hash
+      raise ArgumentError, 'body cannot be empty' if body.empty?
+
+      put("/networks/#{network_id}/#{device_serial}", valid_keys: valid_keys, body: body)
+    end
+
+    def device(network_id, serial)
+      device = symbolize_keys(get("/networks/#{network_id}/devices/#{serial}"))
+      device[:tags] ||= ''
+      device
+    end
+
+    def organization_devices(organization_id)
+      devices = get("/organizations/#{organization_id}/devices").map { |h| symbolize_keys(h) }
+      devices.each { |device| device[:tags] ||= '' }
+    end
+
+    def network_devices(network_id)
+      devices = get("/networks/#{network_id}/devices").map { |h| symbolize_keys(h) }
+      devices.each { |device| device[:tags] ||= '' }
     end
 
     def get(path, **options)

@@ -20,14 +20,26 @@ AllCops:
 
 Layout/LineLength:
   Enabled: false
+Metrics/AbcSize:
+  Enabled: true
+  Exclude:
+    - './lib/dashbeautiful/dashboard_base.rb'
 Metrics/BlockLength:
   Enabled: true
   Exclude:
     - 'meraki.gemspec'
     - '**/*_spec.rb'
+Metrics/ClassLength:
+  Enabled: true
+  Exclude:
+    - './lib/dashbeautiful/dashboard_base.rb'
 Metrics/ModuleLength:
   Enabled: true
   Exclude:
     - '**/*_spec.rb'
+Style/ClassVars:
+  Enabled: true
+  Exclude:
+    - './lib/dashbeautiful/dashboard_base.rb'
 Style/FrozenStringLiteralComment:
   Enabled: false

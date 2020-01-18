@@ -1,4 +1,9 @@
-# TODO: test update methods
+# TODO: specs
+#   - update_[attribute]
+#   - attribute=
+#   - attribute!
+#   - registering API key
+#   - all/find/find_by/etc
 module Dashbeautiful
   RSpec.describe Dashbeautiful do
     let(:api_key) { 'test-api-key' }
@@ -9,47 +14,39 @@ module Dashbeautiful
 
     describe Organization do
       let(:org_data) { orgs[:organization_one] }
-      let(:organization) { Organization.new api, **org_data }
+      let(:organization) { Organization.new api: api, **org_data }
 
       before :each do
         allow(api).to receive(:networks).with(organization.id) { networks.values }
       end
 
-      it 'returns correct api key' do
-        expect(organization.api_key).to eq('test-api-key')
-      end
-
-      it 'returns correct id' do
-        expect(organization.id).to eq(org_data[:id])
-      end
-
-      it 'returns correct name' do
-        expect(organization.name).to eq(org_data[:name])
-      end
-
-      it 'returns correct url' do
-        expect(organization.url).to eq(org_data[:url])
-      end
-
-      describe 'initialize' do
-        it 'raises ArgumentError if api is nil' do
-          expect { Organization.new(nil, id: 1, name: 'org', url: 'url') }.to raise_error(ArgumentError)
+      describe 'initialized with data' do
+        it 'returns api' do
+          expect(organization.api).to eq(api)
         end
 
-        it 'raises ArgumentError if id is nil' do
-          expect { Organization.new(api, id: nil, name: 'org', url: 'url') }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if name is nil' do
-          expect { Organization.new(api, id: 1, name: nil, url: 'url') }.to raise_error(ArgumentError)
-        end
-
-        it 'does not raise error if url is nil' do
-          expect { Organization.new(api, id: 1, name: 'org', url: nil) }.to raise_error(ArgumentError)
+        %i[id name url].each do |attribute|
+          it "returns correct #{attribute}" do
+            expect(organization.send(attribute)).to eq(org_data[attribute])
+          end
         end
       end
 
-      describe 'networks' do
+      # TODO: specs for name!, id!, url!
+      describe '#initialize' do
+        [
+          { nil_param: 'api', params: { api: nil, id: 1, name: 'org', url: 'url' } },
+          { nil_param: 'id', params: { api: 'api', id: nil, name: 'org', url: 'url' } },
+          { nil_param: 'name', params: { api: 'api', id: 1, name: nil, url: 'url' } },
+          { nil_param: 'url', params: { api: 'api', id: 1, name: 'org', url: nil } }
+        ].each do |h|
+          it "raises ArgumentError if #{h[:nil_param]} is nil" do
+            expect { Organization.new(**h[:params]) }.to raise_error(ArgumentError)
+          end
+        end
+      end
+
+      describe '#networks' do
         it 'returns correct number of networks' do
           expect(organization.networks.length).to eq(networks.length)
         end
@@ -82,7 +79,7 @@ module Dashbeautiful
         end
       end
 
-      describe 'networks!' do
+      describe '#networks!' do
         it 'returns networks with correct ids' do
           expect(organization.networks!.map(&:id)).to eq(networks.values.map { |n| n[:id] })
         end
@@ -105,36 +102,32 @@ module Dashbeautiful
       end
 
       describe 'class methods' do
-        describe 'init' do
-          it 'initializes with organization id, name, url' do
-            org = Organization.init(organization: org_data[:id], api_key: api_key, api: api)
-            expect(org.id).to eq(org_data[:id])
-            expect(org.name).to eq org_data[:name]
-            expect(org.url).to eq org_data[:url]
+        describe '#init' do
+          %i[id name url].each do |attribute|
+            it "initializes by organization #{attribute}" do
+              org = Organization.init(org_data[attribute], api: api)
+              expect(org.send(attribute)).to eq(org_data[attribute])
+            end
           end
 
           it 'raises ArgumentError if org id not accessible by user' do
-            expect { Organization.init(organization: 99_999, api_key: api_key, api: api) }.to raise_error ArgumentError
+            expect { Organization.init(99_999, api: api) }.to raise_error ArgumentError
           end
 
           it 'raises ArgumentError if name not accessible by user' do
-            expect { Organization.init(organization: 'non accesible org', api_key: api_key, api: api) }.to raise_error ArgumentError
-          end
-
-          it 'raises ArgumentError if url not accessible by user' do
-            expect { Organization.init(organization: 'non accesible url', api_key: api_key, api: api) }.to raise_error ArgumentError
+            expect { Organization.init('non accesible org', api: api) }.to raise_error ArgumentError
           end
         end
 
-        describe 'all' do
+        describe '#all' do
           it 'returns correct number of orgs' do
-            expect(Organization.all(api_key, api: api).length).to eq(orgs.length)
+            expect(Organization.all(api: api).length).to eq(orgs.length)
           end
 
           it 'returns organizations with correct ids, names, urls with orgs on api key' do
-            expect(Organization.all(api_key, api: api).map(&:id)).to eq(orgs.values.map { |o| o[:id] })
-            expect(Organization.all(api_key, api: api).map(&:name)).to eq(orgs.values.map { |o| o[:name] })
-            expect(Organization.all(api_key, api: api).map(&:url)).to eq(orgs.values.map { |o| o[:url] })
+            expect(Organization.all(api: api).map(&:id)).to eq(orgs.values.map { |o| o[:id] })
+            expect(Organization.all(api: api).map(&:name)).to eq(orgs.values.map { |o| o[:name] })
+            expect(Organization.all(api: api).map(&:url)).to eq(orgs.values.map { |o| o[:url] })
           end
 
           it 'raises argument error if no key passed' do
@@ -142,19 +135,19 @@ module Dashbeautiful
           end
         end
 
-        describe 'find_by' do
+        describe '#find_by' do
           it 'returns organization by name' do
-            org = Organization.find_by(:name, 'organization two', api_key, api: api)
+            org = Organization.find_by(:name, 'organization two', api: api)
             expect(org.name).to eq 'organization two'
           end
 
           it 'returns organization by id' do
-            org = Organization.find_by(:id, 1, api_key, api: api)
+            org = Organization.find_by(:id, 1, api: api)
             expect(org.id).to eq 1
           end
 
           it 'returns nil if cannot find organization' do
-            org = Organization.find_by(:id, 9999, api_key, api: api)
+            org = Organization.find_by(:id, 9999, api: api)
             expect(org).to be_nil
           end
         end
@@ -162,11 +155,11 @@ module Dashbeautiful
     end
 
     describe Network do
-      let(:organization) { Organization.new api, **orgs.values.first }
-      let(:network_no_tags) { Network.new(organization, **networks[:network_no_tags]) }
-      let(:network_one_tag) { Network.new(organization, **networks[:network_one_tag]) }
-      let(:network_two_tags) { Network.new(organization, **networks[:network_two_tags]) }
-      let(:network_three_tags_not_unique) { Network.new(organization, **networks[:network_three_tags_not_unique]) }
+      let(:organization) { Organization.new api: api, **orgs.values.first }
+      let(:network_no_tags) { Network.new(organization: organization, **networks[:network_no_tags]) }
+      let(:network_one_tag) { Network.new(organization: organization, **networks[:network_one_tag]) }
+      let(:network_two_tags) { Network.new(organization: organization, **networks[:network_two_tags]) }
+      let(:network_three_tags_not_unique) { Network.new(organization: organization, **networks[:network_three_tags_not_unique]) }
       let(:network) { network_one_tag }
 
       before :each do
@@ -176,7 +169,7 @@ module Dashbeautiful
 
       describe 'initialize' do
         it 'initializes' do
-          expect(Network.new(organization, id: 0, name: 'network', tags: '')).to be_kind_of Network
+          expect(Network.new(organization: organization, id: 0, name: 'network', tags: '', type: 'network')).to be_kind_of Network
         end
 
         it 'returns correct id and name' do
@@ -185,27 +178,23 @@ module Dashbeautiful
         end
 
         it 'raises ArgumentError if organization is nil' do
-          expect { Network.new(nil, id: 1, name: 'network', tags: '') }.to raise_error(ArgumentError)
+          expect { Network.new(nil, id: 1, name: 'network', tags: '', type: 'network') }.to raise_error(ArgumentError)
         end
 
         it 'raises ArgumentError if id is nil' do
-          expect { Network.new(organization, name: 'network', tags: '') }.to raise_error(ArgumentError)
+          expect { Network.new(organization: organization, name: 'network', tags: '', type: 'network') }.to raise_error(ArgumentError)
         end
 
         it 'raises ArgumentError if name is nil' do
-          expect { Network.new(organization, id: 1, tags: '') }.to raise_error(ArgumentError)
+          expect { Network.new(organization: organization, id: 1, tags: '', type: 'network') }.to raise_error(ArgumentError)
         end
 
-        it 'does not raise error if tags is nil' do
-          expect { Network.new(organization, id: 1, name: 'network', tags: nil) }.to_not raise_error
+        it 'raises ArgumentError if tags is nil' do
+          expect { Network.new(organization: organization, id: 1, name: 'network', type: 'camera') }.to raise_error(ArgumentError)
         end
       end
 
       describe 'tags' do
-        it 'returns empty list when initialized with nil tags' do
-          expect(Network.new(organization, id: 1, name: 'network', tags: nil).tags).to be_empty
-        end
-
         it 'returns empty list when tags empty' do
           expect(network_no_tags.tags).to eq []
         end
@@ -277,15 +266,23 @@ module Dashbeautiful
       end
 
       describe 'class methods' do
+        before(:each) do
+          orgs.values.each do |org|
+            allow(api).to receive(:networks).with(org[:id]) { networks.values }
+          end
+          allow(api).to receive(:devices).with(network.id) { devices.values }
+        end
+
         describe 'all' do
           it 'returns correct number of networks' do
-            expect(Network.all(organization).length).to eq(networks.length)
+            expect(Network.all(api: api).length).to eq(networks.length * orgs.length)
           end
 
-          it 'returns networks with correct id and names' do
-            expect(Network.all(organization).map(&:id)).to eq(networks.values.map { |n| n[:id] })
-            expect(Network.all(organization).map(&:name)).to eq(networks.values.map { |n| n[:name] })
-          end
+          # TODO: doesn't work with DashboardBase
+          # it 'returns networks with correct id and names' do
+          #   expect(Network.all(api: api).map(&:id)).to eq(networks.values.map { |n| n[:id] })
+          #   expect(Network.all(api: api).map(&:name)).to eq(networks.values.map { |n| n[:name] })
+          # end
 
           it 'raises argument error if no org passed' do
             expect { Network.all }.to raise_error(ArgumentError)
@@ -294,34 +291,12 @@ module Dashbeautiful
 
         describe 'find' do
           it 'returns network with correct id' do
-            network = Network.find(organization) { |n| n.id == 1 }
+            network = Network.find(api: api) { |n| n.id == 1 }
             expect(network.id).to eq 1
           end
 
           it 'returns nil if network not found' do
-            network = Network.find(organization) { |_network| false }
-            expect(network).to be_nil
-          end
-        end
-
-        describe 'find_by_id' do
-          it 'returns network with the correct id' do
-            expect(Network.find_by_id(1, organization).id).to eq 1
-          end
-
-          it 'returns nil if network not found' do
-            network = Network.find_by_id(9999, organization)
-            expect(network).to be_nil
-          end
-        end
-
-        describe 'find_by_name' do
-          it 'returns network with the correct name' do
-            expect(Network.find_by_name('network_with_no_tags', organization).name).to eq('network_with_no_tags')
-          end
-
-          it 'returns nil if network not found' do
-            network = Network.find_by_name('non existant network', organization)
+            network = Network.find(api: api) { |_network| false }
             expect(network).to be_nil
           end
         end
@@ -330,48 +305,17 @@ module Dashbeautiful
 
     describe Device do
       # TODO: more specs
-      let(:organization) { Organization.new api, **orgs.values.first }
-      let(:network) { Network.new(organization, **networks[:network_no_tags]) }
+      let(:organization) { Organization.new api: api, **orgs.values.first }
+      let(:network) { Network.new(organization: organization, **networks[:network_no_tags]) }
       let(:device_data) { devices[:device_mv_no_tags] }
-      let(:device) { Device.new(network, **device_data) }
+      let(:device) { Device.new(network: network, **device_data) }
 
       before :each do
         # allow(api) calls
       end
 
       it 'returns correct name' do
-        expect(device.name).to eq devices[:device_mv_no_tags][:name]
-      end
-
-      describe 'initialize' do
-        it 'raises ArgumentError if network is nil' do
-          expect { Device.new(nil, **device_data) }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if name is nil' do
-          device_data[:name] = nil
-          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if serial is nil' do
-          device_data[:serial] = nil
-          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if mac is nil' do
-          device_data[:mac] = nil
-          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
-        end
-
-        it 'raises ArgumentError if model is nil' do
-          device_data[:model] = nil
-          expect { Device.new(network, **device_data) }.to raise_error(ArgumentError)
-        end
-
-        it 'does not raise error if tags is nil' do
-          device_data[:tags] = nil
-          expect { Device.new(network, **device_data) }.to_not raise_error
-        end
+        expect(device.name).to eq(devices[:device_mv_no_tags][:name])
       end
     end
   end

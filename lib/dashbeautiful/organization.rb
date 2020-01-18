@@ -1,62 +1,61 @@
 module Dashbeautiful
   # description TODO
-  class Organization
+  class Organization < DashboardBase
     attr_accessor :api
-    attr_reader :name, :id, :url
 
-    ATTRIBUTES = %i[id name url].freeze
+    dash_attr_reader :id, :url
+    dash_attr_accessor :name
 
-    def self.all(api_key, api: API.new(api_key))
-      raise ArgumentError, 'api_key is nil. Either initialize Organization or pass a key' if api_key.nil?
-
-      api.organizations.map { |org| Organization.new(api, **org) }
+    def self._all(api:)
+      api.organizations.map { |org| Organization.new(api: api, **org) }
     end
 
-    def self.find_by(attribute, value, api_key, api: API.new(api_key))
-      all(api_key, api: api).each do |org|
-        return org if org.send(attribute) == value
-      end
-      nil
-    end
+    def initialize(api:, **attrs)
+      raise ArgumentError if api.nil?
 
-    def self.init(organization:, api_key:, api: API.new(api_key))
-      ATTRIBUTES.each do |attribute|
-        org = find_by(attribute, organization, api_key, api: api)
-        return org unless org.nil?
-      end
-      raise ArgumentError, "Could not find organization: #{organization}"
-    end
-
-    def initialize(api, **attributes)
       @api = api
-      @id = attributes[:id]
-      @name = attributes[:name]
-      @url = attributes[:url]
-
-      # TODO: this is currently in Organization, Network, and Device. If you
-      #       change in one, you should change in the other. Should probably
-      #       figure out how to DRY this out
-      instance_variables.each do |var|
-        raise ArgumentError, "cannot instantiate with nil value #{var}" if instance_variable_get(var).nil?
-      end
-    end
-
-    def name=(value)
-      api.update_organization(id, name: value)
-      @name = value
-    end
-
-    def api_key
-      api.key
+      super(**attrs)
     end
 
     def networks
-      @networks ||= api.networks(id).map { |network| Network.create(self, **network) }
+      @networks ||= api.networks(id).map { |network| Network.create(organization: self, **network) }
     end
 
     def networks!
       @networks = nil
       networks
+    end
+
+    def find_network(attribute, value)
+      networks.find do |network|
+        network.send(attribute) == value
+      end
+    end
+
+    def find_network!(attribute, value)
+      networks!.find do |network|
+        network.send(attribute) == value
+      end
+    end
+
+    def network(value)
+      Network.attributes.each do |attribute|
+        find_network(attribute, value)
+      end
+    end
+
+    def network!(value)
+      Network.attributes.each do |attribute|
+        find_network!(attribute, value)
+      end
+    end
+
+    def attributes_load
+      api.organization(id)
+    end
+
+    def attributes_update(**kwargs)
+      api.update_organization(id, **kwargs)
     end
   end
 end

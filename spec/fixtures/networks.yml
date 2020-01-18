@@ -1,19 +1,54 @@
 :network_no_tags:
   :id: 0
+  :organizationId: 0
+  :type: 'camera'
+  :productTypes: [ 'camera' ]
   :name: 'network_with_no_tags'
+  :timeZone: 'America/Los_Angeles'
   :tags: ''
+  :disableRemoteStatusPage: true
+  :enrollmentString: nil
 
 :network_one_tag:
   :id: 1
+  :organizationId: 1
+  :type: 'appliance'
+  :productTypes: [ 'appliance' ]
   :name: 'network_with_one_tag'
+  :timeZone: 'America/Los_Angeles'
   :tags: 'network-tag-one'
+  :disableRemoteStatusPage: true
+  :enrollmentString: nil
 
 :network_two_tags:
   :id: 2
+  :organizationId: 2
+  :type: 'wired'
+  :productTypes: [ 'wired' ]
   :name: 'network_with_one_tag'
+  :timeZone: 'America/Los_Angeles'
   :tags: 'network-tag-one network-tag-two'
+  :disableRemoteStatusPage: true
+  :enrollmentString: nil
 
 :network_three_tags_not_unique:
   :id: 3
+  :organizationId: 3
+  :type: 'wireless'
+  :productTypes: [ 'wireless' ]
+  :name: 'network_with_one_tag'
+  :timeZone: 'America/Los_Angeles'
+  :tags: 'network-tag-one network-tag-two network-tag-two'
+  :disableRemoteStatusPage: true
+  :enrollmentString: nil
+
+:network_combined:
+  :id: 4
+  :organizationId: 4
+  :timeZone: 'America/Los_Angeles'
+  :type: 'combined'
+  :productTypes: [ 'wired', 'wireless' ]
   :name: 'network_with_one_tag'
   :tags: 'network-tag-one network-tag-two network-tag-two'
+  :disableRemoteStatusPage: true
+  :enrollmentString: nil
