@@ -6,6 +6,8 @@ module Dashbeautiful
     dash_attr_reader :id, :type
     dash_attr_accessor :name, :tags
 
+    extend Dashbeautiful::SearchableDashboardObject
+
     def self.create(**kwargs)
       type = case kwargs[:type]
              when 'camera' then CameraNetwork

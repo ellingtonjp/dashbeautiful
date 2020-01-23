@@ -1,3 +1,5 @@
+require 'dashbeautiful/searchable_dashboard_object'
+
 require 'dashbeautiful/api'
 require 'dashbeautiful/dashboard_base'
 require 'dashbeautiful/device'

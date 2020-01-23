@@ -29,10 +29,6 @@ Metrics/BlockLength:
   Exclude:
     - 'meraki.gemspec'
     - '**/*_spec.rb'
-Metrics/ClassLength:
-  Enabled: true
-  Exclude:
-    - './lib/dashbeautiful/dashboard_base.rb'
 Metrics/ModuleLength:
   Enabled: true
   Exclude:

@@ -86,53 +86,6 @@ module Dashbeautiful
       end
     end
 
-    def self._all(_api: nil)
-      raise NotImplementedError
-    end
-
-    def self.all(api: nil)
-      return @all if @all
-
-      if api.nil?
-        raise ArgumentError, 'either pass an API or call Dashbeautiful.register' unless Dashbeautiful.registered?
-
-        api = API.new(Dashbeautiful.key)
-      end
-
-      @all = _all(api: api)
-    end
-
-    def self.all!(api: nil)
-      @all = nil
-      all(api: api)
-    end
-
-    def self.find(api:, &block)
-      all(api: api).find(&block)
-    end
-
-    def self.find!(api:, &block)
-      all!(api: api).find(&block)
-    end
-
-    def self.find_by(attribute, value, api:)
-      find(api: api) { |obj| obj.send(attribute) == value }
-    end
-
-    def self.find_by!(attribute, value, api:)
-      find!(api: api) { |obj| obj.send(attribute) == value }
-    end
-
-    # TODO: should we have init! ? Does it make sense to
-    # skip caching for this method?
-    def self.init(value, api: nil)
-      dash_attributes.each do |attribute|
-        obj = find_by(attribute, value, api: api)
-        return obj unless obj.nil?
-      end
-      raise ArgumentError, "Could not find #{self.class}: #{value}"
-    end
-
     def initialize(**attrs)
       validate_attributes(attrs)
       self.class.dash_attributes.each { |attr| instance_variable_set("@#{attr}".to_sym, attrs[attr]) }

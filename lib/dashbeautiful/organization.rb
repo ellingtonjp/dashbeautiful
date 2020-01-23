@@ -6,6 +6,8 @@ module Dashbeautiful
     dash_attr_reader :id, :url
     dash_attr_accessor :name
 
+    extend Dashbeautiful::SearchableDashboardObject
+
     def self._all(api:)
       api.organizations.map { |org| Organization.new(api: api, **org) }
     end
