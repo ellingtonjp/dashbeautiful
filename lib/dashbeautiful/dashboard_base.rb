@@ -47,6 +47,10 @@ module Dashbeautiful
       dash_accessors + dash_writers + dash_readers
     end
 
+    def self.searchable_attributes
+      dash_attributes
+    end
+
     def define_dash_reader(attr)
       define_singleton_method attr do
         instance_variable_get("@#{attr}".to_sym)

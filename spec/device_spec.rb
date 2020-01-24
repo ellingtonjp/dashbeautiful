@@ -1,6 +1,10 @@
+require 'shared_examples_searchable_dashboard_object'
+
 module Dashbeautiful
   RSpec.describe Dashbeautiful do
     describe Device do
+      include_examples 'SearchableDashboardObject'
+
       let(:api_key) { 'test-api-key' }
       let(:orgs) { organizations_fixture }
       let(:networks) { networks_fixture }

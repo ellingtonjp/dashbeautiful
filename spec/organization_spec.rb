@@ -1,3 +1,5 @@
+require 'shared_examples_searchable_dashboard_object'
+
 module Dashbeautiful
   RSpec.describe Dashbeautiful do
     let(:api_key) { 'test-api-key' }
@@ -7,6 +9,8 @@ module Dashbeautiful
     let(:api) { api_double(key: api_key, organizations: orgs.values) }
 
     describe Organization do
+      include_examples 'SearchableDashboardObject'
+
       let(:org_data) { orgs[:organization_one] }
       let(:organization) { Organization.new api: api, **org_data }
 
@@ -92,58 +96,6 @@ module Dashbeautiful
 
           new_value = organization.networks!
           expect(new_value).to_not eq(old_value)
-        end
-      end
-
-      describe 'class methods' do
-        describe '#init' do
-          %i[id name url].each do |attribute|
-            it "initializes by organization #{attribute}" do
-              org = Organization.init(org_data[attribute], api: api)
-              expect(org.send(attribute)).to eq(org_data[attribute])
-            end
-          end
-
-          it 'raises ArgumentError if org id not accessible by user' do
-            expect { Organization.init(99_999, api: api) }.to raise_error ArgumentError
-          end
-
-          it 'raises ArgumentError if name not accessible by user' do
-            expect { Organization.init('non accesible org', api: api) }.to raise_error ArgumentError
-          end
-        end
-
-        describe '#all' do
-          it 'returns correct number of orgs' do
-            expect(Organization.all(api: api).length).to eq(orgs.length)
-          end
-
-          it 'returns organizations with correct ids, names, urls with orgs on api key' do
-            expect(Organization.all(api: api).map(&:id)).to eq(orgs.values.map { |o| o[:id] })
-            expect(Organization.all(api: api).map(&:name)).to eq(orgs.values.map { |o| o[:name] })
-            expect(Organization.all(api: api).map(&:url)).to eq(orgs.values.map { |o| o[:url] })
-          end
-
-          it 'raises argument error if no key passed' do
-            expect { Organization.all }.to raise_error(ArgumentError)
-          end
-        end
-
-        describe '#find_by' do
-          it 'returns organization by name' do
-            org = Organization.find_by(:name, 'organization two', api: api)
-            expect(org.name).to eq 'organization two'
-          end
-
-          it 'returns organization by id' do
-            org = Organization.find_by(:id, 1, api: api)
-            expect(org.id).to eq 1
-          end
-
-          it 'returns nil if cannot find organization' do
-            org = Organization.find_by(:id, 9999, api: api)
-            expect(org).to be_nil
-          end
         end
       end
     end

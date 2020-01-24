@@ -1,6 +1,10 @@
+require 'shared_examples_searchable_dashboard_object'
+
 module Dashbeautiful
   RSpec.describe Dashbeautiful do
     describe Network do
+      include_examples 'SearchableDashboardObject'
+
       let(:api_key) { 'test-api-key' }
       let(:orgs) { organizations_fixture }
       let(:networks) { networks_fixture }
@@ -114,43 +118,6 @@ module Dashbeautiful
 
           new_value = network.devices!
           expect(new_value).to_not eq(old_value)
-        end
-      end
-
-      describe 'class methods' do
-        before(:each) do
-          orgs.values.each do |org|
-            allow(api).to receive(:networks).with(org[:id]) { networks.values }
-          end
-          allow(api).to receive(:devices).with(network.id) { devices.values }
-        end
-
-        describe 'all' do
-          it 'returns correct number of networks' do
-            expect(Network.all(api: api).length).to eq(networks.length * orgs.length)
-          end
-
-          # TODO: doesn't work with DashboardBase
-          # it 'returns networks with correct id and names' do
-          #   expect(Network.all(api: api).map(&:id)).to eq(networks.values.map { |n| n[:id] })
-          #   expect(Network.all(api: api).map(&:name)).to eq(networks.values.map { |n| n[:name] })
-          # end
-
-          it 'raises argument error if no org passed' do
-            expect { Network.all }.to raise_error(ArgumentError)
-          end
-        end
-
-        describe 'find' do
-          it 'returns network with correct id' do
-            network = Network.find(api: api) { |n| n.id == 1 }
-            expect(network.id).to eq 1
-          end
-
-          it 'returns nil if network not found' do
-            network = Network.find(api: api) { |_network| false }
-            expect(network).to be_nil
-          end
         end
       end
     end

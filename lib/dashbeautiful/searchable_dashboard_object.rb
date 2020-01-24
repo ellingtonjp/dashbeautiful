@@ -1,14 +1,16 @@
 module Dashbeautiful
   # description TODO
   module SearchableDashboardObject
-    # TODO: should we have init! ? Does it make sense to
-    # skip caching for this method?
-    def init(value, api: nil)
-      dash_attributes.each do |attribute|
+    def retrieve(value, api: nil)
+      searchable_attributes.each do |attribute|
         obj = find_by(attribute, value, api: api)
         return obj unless obj.nil?
       end
       raise ArgumentError, "Could not find #{self.class}: #{value}"
+    end
+
+    def searchable_attributes
+      raise NotImplementedError
     end
 
     def _all(_api: nil)
@@ -27,7 +29,7 @@ module Dashbeautiful
       @all = _all(api: api)
     end
 
-    def all!(api: nil)
+    def all!(api:)
       @all = nil
       all(api: api)
     end
